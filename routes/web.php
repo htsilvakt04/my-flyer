@@ -4,6 +4,8 @@ Route::get('/', function () {
     return view("pages.home");
 });
 Route::resource("flyers", "FlyerController");
+Route::delete("/photos/{photo}", "PhotosController@destroy");
+
 Route::post("{zip}/{street}/photos", "PhotosController@store");
 Route::get("{zip}/{street}", "FlyerController@show");
 

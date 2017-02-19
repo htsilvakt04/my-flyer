@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 use Image;
 class Photo extends Model
 {
@@ -11,33 +12,39 @@ class Photo extends Model
     protected $file;
 
     protected $fillbale = ["name", "path", "thumbnail_path"];
-    public function __construct($file = null)
+    public function __construct()
     {
-      if ($file) {
-        $this->file = $file;
-        $this->makePhotoName();
-      }
 
+    }
+    public function getRouteKeyName()
+    {
+        return 'name';
+    }
+    public function setNameAttribute($name)
+    {
+      $this->attributes["name"] = $name;
+      $this->path = $this->baseDir."/".$name;
+      $this->thumbnail_path = $this->baseDir."/tn-".$name;
+    }
+    public static function makeFromFile(UploadedFile $file)
+    {
+      $photo = new static;
+      $photo->file = $file;
+      $photo->makePhotoName($file);
+
+      return $photo;
     }
     public function flyer()
     {
       return $this->belongsTo(Flyer::class);
     }
-    public function makePhotoName()
+    public function makePhotoName($file)
     {
-      $name = $this->file->getClientOriginalName();
+      $name = $file->getClientOriginalName();
       $this->name = time().$name;
-      $this->path = $this->baseDir."/".$this->name;
-      $this->thumbnail_path = $this->baseDir."/tn-".$this->name;
+
       //move photo to proper directory
       $this->file->move($this->baseDir, $this->name);
-
-      return $this->makeThumnail();
     }
-    public function makeThumnail()
-    {
-
-      Image::make($this->path)->fit(200)->save($this->thumbnail_path);
-      return $this;
-    }
+    
 }

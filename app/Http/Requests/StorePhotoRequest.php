@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use App\FLyer;
 class StorePhotoRequest extends FormRequest
 {
     /**
@@ -13,7 +13,11 @@ class StorePhotoRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return Flyer::where([
+          "zip" => $this->zip,
+          "street" => $this->street,
+          "user_id" => $this->user()->id,
+        ])->exists();
     }
 
     /**
